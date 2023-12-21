@@ -1,0 +1,9 @@
+service Daemon {
+    uuid = 21c23120-d52c-44c5-8aff-9651bd8e411b;
+    version = 1;
+}
+
+service Wily {
+    uuid = c51011b3-a071-4880-8d6a-8328f67edfb4;
+    version = 1;
+}
