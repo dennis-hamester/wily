@@ -1,0 +1,106 @@
+const DAEMON_OBJECT_UUID = uuid(cb69070c-0062-4feb-8374-7dabcc2b98a6);
+
+service Daemon {
+    uuid = 21c23120-d52c-44c5-8aff-9651bd8e411b;
+    version = 1;
+
+    fn shut_down @ 1;
+
+    fn share @ 2 {
+        args = struct {
+            required path @ 1 = string;
+            name @ 2 = string;
+            persist @ 3 = bool;
+            expires_unix_ms @ 4 = i64;
+            disabled @ 5 = bool;
+        }
+
+        ok = Share;
+
+        err = enum {
+            InvalidName @ 1 = string;
+            DuplicateName @ 2 = string;
+            RelativePath @ 3;
+        }
+    }
+
+    fn unshare @ 3 {
+        args = struct {
+            required name @ 1 = string;
+        }
+
+        ok = Share;
+
+        err = enum {
+            UnknownShare @ 1;
+            StaticShare @ 2;
+        }
+    }
+
+    fn list @ 4 {
+        ok = map<string -> Share>;
+    }
+
+    fn enable @ 5 {
+        args = struct {
+            required name @ 1 = string;
+        }
+
+        ok = Share;
+
+        err = enum {
+            UnknownShare @ 1;
+        }
+    }
+
+    fn disable @ 6 {
+        args = struct {
+            required name @ 1 = string;
+        }
+
+        ok = Share;
+
+        err = enum {
+            UnknownShare @ 1;
+        }
+    }
+
+    event shared @ 1 = Share;
+
+    event unshared @ 2 = struct {
+        required share @ 1 = Share;
+        required reason @ 2 = UnshareReason;
+    }
+}
+
+struct Share {
+    required name @ 1 = string;
+    required path @ 2 = string;
+    required share_type @ 3 = ShareType;
+    required disabled @ 4 = ShareDisabled;
+}
+
+enum ShareType {
+    Static @ 1;
+    Persisted @ 2 = PersistedShare;
+    Transient @ 3 = TransientShare;
+}
+
+struct PersistedShare {
+    expires_unix_ms @ 1 = i64;
+}
+
+struct TransientShare {
+    expires_unix_ms @ 1 = i64;
+}
+
+#[rust(impl_copy)]
+struct ShareDisabled {
+    required user @ 1 = bool;
+}
+
+#[rust(impl_copy, impl_partial_eq, impl_eq)]
+enum UnshareReason {
+    UserRequest @ 1;
+    Expired @ 2;
+}

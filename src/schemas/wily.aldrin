@@ -1,0 +1,32 @@
+const WILY_OBJECT_UUID = uuid(5225f2c2-6dae-453f-a458-25f7a3c5fe8c);
+
+service Wily {
+    uuid = c51011b3-a071-4880-8d6a-8328f67edfb4;
+    version = 1;
+
+    fn query @ 1 {
+        args = struct {
+            required path @ 1 = string;
+        }
+
+        ok = enum {
+            Root @ 1;
+            Metadata @ 2 = Metadata;
+        }
+
+        err = enum {
+            FileNotFound @ 1;
+        }
+    }
+}
+
+struct Metadata {
+    required file_type @ 1 = FileType;
+}
+
+#[rust(impl_copy, impl_partial_eq, impl_eq)]
+enum FileType {
+    File @ 1;
+    Directory @ 2;
+    SymLink @ 3;
+}
